@@ -49,9 +49,12 @@
                 }
             </td>
             <td>
-                @foreach (var platform in item.Platforms)
+                @if (item.Platforms != null)
                 {
-                    <span class="badge bg-primary">@platform.Name</span>
+                    @foreach (var platform in item.Platforms)
+                    {
+                        <span class="badge bg-primary">@platform.Name</span>
+                    }
                 }
             </td>
             <td>

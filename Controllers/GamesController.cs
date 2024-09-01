@@ -22,7 +22,7 @@ namespace RelationsNaN.Controllers
         // GET: Games
         public async Task<IActionResult> Index()
         {
-            var relationsNaNContext = _context.Game.Include(g => g.Genre);
+            var relationsNaNContext = _context.Game.Include(g => g.Genre).Include(g => g.Platforms);
             return View(await relationsNaNContext.ToListAsync());
         }
 
@@ -83,6 +83,8 @@ namespace RelationsNaN.Controllers
                 return NotFound();
             }
             ViewData["GenreId"] = new SelectList(_context.Genre, "Id", "Name", game.Genre);
+            ViewBag.Platforms = new SelectList(_context.Platform.Include(p => p.Games).Where(p => !(p.Games.Contains(game))), "Id", "Name");
+
             return View(game);
         }
 
@@ -154,6 +156,39 @@ namespace RelationsNaN.Controllers
 
             await _context.SaveChangesAsync();
             return RedirectToAction(nameof(Index));
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> AddPlatform(int id, int platformId)
+        {
+            //https://stackoverflow.com/questions/40360512/findasync-and-include-linq-statements
+            var game = await _context.Game.Include(g => g.Platforms).FirstOrDefaultAsync(g => g.Id == id);
+            var platform = await _context.Platform.FindAsync(platformId);
+
+            if (game != null && platform != null)
+            {
+                game.Platforms.Add(platform);
+                _context.Update(game);
+                await _context.SaveChangesAsync();
+            }
+
+            return RedirectToAction("Edit", new { id= id });
+        }
+
+        [HttpPost]
+        public async Task<IActionResult> RemovePlatform(int id, int platformId)
+        {
+            var game = await _context.Game.FindAsync(id);
+            var platform = await _context.Platform.FindAsync(platformId);
+
+            if (game != null && platform != null)
+            {
+                game.Platforms.Remove(platform);
+                _context.Update(game);
+                await _context.SaveChangesAsync();
+            }
+
+            return RedirectToAction("Edit", new { id = id });
         }
 
         private bool GameExists(int id)

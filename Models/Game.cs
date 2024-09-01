@@ -9,12 +9,14 @@ namespace RelationsNaN.Models
         public string Image { get; set; }
         public int ReleaseYear { get; set; }
 
-        //relation optionnelle
         public int? GenreId { get; set; }
         [ValidateNever]
         public Genre? Genre { get; set; }
 
         [ValidateNever]
         public List<Platform> Platforms { get; set; }
+
+        [ValidateNever]
+        public List<GamePurchase> GamePurchases { get; set; }
     }
 }
